@@ -1,0 +1,48 @@
+  <!-- how to send request from frontend to backend server -->
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To Do page </title>
+</head>
+<script>
+    function parseResponse(data)
+    {
+        console.log(data)
+    }
+    function callback(resp)
+    {
+        resp.json().then(parseResponse);
+    }
+    function onPress(){
+        fetch("http://localhost:5000/todo",{
+            method:"POST",
+            body: JSON.stringify({
+                title: "gym",
+                description:"go to gym a t 7",
+               }),
+            headers:{
+                "Content-Type":"application/json"
+            }
+        }).then(callback)
+    }
+</script>
+<body>
+      TO DO title 
+      <input type="text" id="title">
+      <br>
+       TO Do description
+       <input type="text" id="description">
+       <br>
+       <button onclick="onPress()">Send To Do </button>
+</body>
+</html>
