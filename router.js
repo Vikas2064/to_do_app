@@ -10,16 +10,13 @@ let todos=[{
   "description":"learning about working of different api"
 }];
  
-function callback(err,data) {
-  if(err)
-  throw err;
-  res.json(JSON.parse(data));
-}
 
 router.get('/',(req,res)=>{
-    // res.status(201).send(todos);
-    fs.readFile("todo.json",'utf8',callback);
-    res.send("data read successfully")
+  const data=fs.readFile("todo.json",'utf8',(err,data) =>{
+    if(err)
+    throw err;
+    return  res.json(JSON.parse(data));
+  });
 });
 
 router.post('/' ,(req,res)=>{
@@ -42,18 +39,18 @@ router.post('/' ,(req,res)=>{
       {
         throw err;
       }
-      res.status(200).json(todo);
-    })
-    res.status(201).send(req.body);
+     return  res.status(200).json(todo);
+    });
    })
   
 });
 
 function findIndex(todos1,id)
 {
+    
     for(let i =0;i<todos1.length;i++)
     {
-        if(id==todos1.id)
+        if(id==todos1[i].id)
         {
             return i;
         }
@@ -62,7 +59,15 @@ function findIndex(todos1,id)
 }
 function removeAtIndex(todos,index)
 {
-     todos = todos.filter(items =>todos.indexOf(items)!==index)
+     let arr=[];
+     for(let i=0;i<todos.length;i+=1)
+     {
+        if(i!=index)
+        {
+           arr.push(todos[i]);
+        }
+     }
+     return arr;
 }
 function updateAtIndex(todos, findind,updated_todo)
 {
@@ -70,27 +75,41 @@ function updateAtIndex(todos, findind,updated_todo)
 }
 router.put("/:id",(req,res)=>{
       const findind=findIndex(todos,parseInt(req.params.id));
-      if(findind===-1)
+      if(findind==-1)
       {
         res.status(401).send("this todo does not exist");
       }
       else
       {
         todos=updateAtIndex(todos,findind);
-        res.status(200).send("all good");
+        return  res.status(200).send("all good");
       }
 });
 router.delete("/:id",(req,res)=>{
-  const findind=findIndex(todos,parseInt(req.params.id));
-  if(findind===-1)
-  {
-    res.status(401).send("this todo does not exist");
-  }
-  else
-  {
-    todos=removeAtIndex(todos,findind);
-    res.status(200).send("all good");
-  }
+  console.log(req.params.id)
+  const data=fs.readFile("todo.json",'utf8',(err,data) =>{
+      if(err)
+      throw err;
+      data= JSON.parse(data);
+      const findind=findIndex(data,parseInt(req.params.id));
+      console.log(findind)
+      if(findind==-1)
+      {
+        return res.status(401).send("this todo does not exist");
+      }
+      else   
+      {
+        data=removeAtIndex(data,findind);
+        console.log(data);
+        fs.writeFile("todo.json",JSON.stringify(data),(err)=>{
+            if(err)
+            {
+              throw err;
+            }
+        })
+        return res.status(200).send("all good");
+      }
+    });
 });
 
 

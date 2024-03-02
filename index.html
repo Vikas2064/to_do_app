@@ -1,12 +1,6 @@
   <!-- how to send request from frontend to backend server -->
 
 
-
-
-
-
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,6 +9,52 @@
     <title>To Do page </title>
 </head>
 <script>
+   
+    function deleteDone()
+    {
+        getToDo()
+        console.log("done delete")
+    }
+    function deleteTodo(id)
+    {   console.log(id)
+        fetch("http://localhost:5000/todo/"+id,{
+            method:"DELETE",
+            headers:{
+                "Content-Type":"application/json"
+            }
+        }).then(deleteDone)
+    }
+
+    function parseResponse1(data)
+    {
+        // console.log(data);
+       for(let i=0;i<data.length;i+=1)
+       {
+         var childElement = document.createElement("div");
+         var grandChild1 = document.createElement("span");
+         grandChild1.innerHTML=data[i].title;
+         var grandChild2 = document.createElement("span");
+         grandChild2.innerHTML=data[i].description;
+         var childElementButton= document.createElement("button");
+         childElementButton.innerHTML="Delete"
+         childElementButton.setAttribute("onclick","deleteTodo("+ data[i].id + ")")
+         childElement.appendChild(grandChild1);
+         childElement.appendChild(grandChild2);
+         childElement.appendChild(childElementButton);
+         document.getElementById("main_area").appendChild(childElement);
+       }
+    } 
+    function callback1(resp)
+    {
+        resp.json().then(parseResponse1);
+    }
+
+    function getToDo(){
+        fetch("http://localhost:5000/todo",{
+            method:"GET"
+        }).then(callback1)
+    }
+    getToDo()
     function parseResponse(data)
     {
         console.log(data)
@@ -24,11 +64,14 @@
         resp.json().then(parseResponse);
     }
     function onPress(){
+        let title= document.getElementById("title").value;
+        let description= document.getElementById("description").value;
+        console.log(title,description)
         fetch("http://localhost:5000/todo",{
             method:"POST",
             body: JSON.stringify({
-                title: "gym",
-                description:"go to gym a t 7",
+                title:title, 
+                description:description
                }),
             headers:{
                 "Content-Type":"application/json"
@@ -44,5 +87,6 @@
        <input type="text" id="description">
        <br>
        <button onclick="onPress()">Send To Do </button>
+       <div id="main_area">hello there</div>
 </body>
 </html>
